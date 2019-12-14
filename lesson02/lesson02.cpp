@@ -4,24 +4,31 @@
 
 #include "file_operation.h"
 
-bool exercises_task(struct s_word* word)
+bool exercises_task(struct s_word* word, int num)
 {
     char character;
 
-    printf("根据语义选择适当的成语：%s\n", word->desc);
+    printf("%d、根据语义选择成语：%s\n", num+1, word->desc);
     printf("A：%s\tB：%s\tC：%s\tD：%s\n", word->mix[0], word->mix[1], word->mix[2], word->mix[3]);
     printf("请输入正确答案：\n");
     while (1) {
-        if (scanf_s("%c", &character) != 1 || character < 'A' || character > 'D') {
+        scanf_s("%c", &character, 1);
+        if (character == '\n') {
+            continue;
+        }
+        if (character < 'A' || character > 'D') {
+            printf("输入错误，请输入A~D：\n");
             continue;
         }
         if (character == ('A' + word->right)) {
+            printf("答题正确\n");
             return true;
         }
         else {
             break;
         }
     }
+    printf("答题错误\n");
 
     return false;
 }
@@ -57,7 +64,7 @@ int main()
                 break;
             case 1:
                 file_word_random(&word);
-                if (exercises_task(&word) == true) {
+                if (exercises_task(&word, topic_idx) == true) {
                     score.pass++;
                 }
                 topic_idx++;
@@ -69,7 +76,7 @@ int main()
             case 2:
                 char rank[1024] = {0};
                 file_score_read(rank, sizeof(rank));
-                printf("\n==========score=========\n%s\n========================\n", rank);
+                printf("%s", rank);
                 status = 0;
                 break;
         }

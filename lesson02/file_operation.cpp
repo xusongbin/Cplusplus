@@ -112,6 +112,7 @@ bool file_word_random(struct s_word* wdata)
 {
 	int row, idx, idy;
 	int key[4];
+	bool repet;
 
 	row = file_read(file_word);
 	if (row == 0) {
@@ -119,44 +120,19 @@ bool file_word_random(struct s_word* wdata)
 	}
 
 	for (idx = 0; idx < 4; idx++) {
-		idy = 0;
 		while (1) {
 			key[idx] = rand() % row;
-			if (idx == 0) {
+			repet = false;
+			for (idy = 0; idy < idx; idy++) {
+				if (key[idy] == key[idx]) {
+					repet = true;
+				}
+			}
+			if (repet) {
+				continue;
+			}
+			else {
 				break;
-			}
-			else if (idx == 1) {
-				if (key[idx] == key[0]) {
-					continue;
-				}
-				else {
-					break;
-				}
-			}
-			else if (idx == 2) {
-				if (key[idx] == key[0]) {
-					continue;
-				}
-				else if (key[idx] == key[1]) {
-					continue;
-				}
-				else {
-					break;
-				}
-			}
-			else if (idx == 3) {
-				if (key[idx] == key[0]) {
-					continue;
-				}
-				else if (key[idx] == key[1]) {
-					continue;
-				}
-				else if (key[idx] == key[2]) {
-					continue;
-				}
-				else {
-					break;
-				}
 			}
 		}
 	}
@@ -178,16 +154,22 @@ bool file_score_write(struct s_score* sdata)
 
 	row = file_read(file_score);
 
+	ins = 0;
 	for (idx = 0; idx < row; idx++) {
 		if ( strlen(key_argv[idx]) == 0 ) {
 			continue;
 		}
 		if (strcmp(key_argv[idx], sdata->name) == 0) {
-			key_argv[idx][0] = '\0';
+			if (atoi(dat_argv[idx]) > sdata->pass) {
+				ins = 10;
+			}
+			else {
+				key_argv[idx][0] = '\0';
+			}
 		}
 	}
 
-	for (ins = 0; ins < row; ins++) {
+	for (; ins < row; ins++) {
 		if (strlen(key_argv[idx]) != 0 && sdata->pass >= atoi(dat_argv[ins])) {
 			break;		// ins: insert index
 		}
@@ -225,6 +207,7 @@ bool file_score_read(char* sdata, int slen)
 	}
 
 	len = 0;
+	len += snprintf(&sdata[len], slen - len, "========================================\n");
 	len += snprintf(&sdata[len], slen - len, "Ranking\t\tName\t\tScore\n");
 	for (idx = 0; idx < row; idx++) {
 		len += snprintf(&sdata[len], slen - len, "%d\t\t%s\t\t%s\n", idx+1, key_argv[idx], dat_argv[idx]);
